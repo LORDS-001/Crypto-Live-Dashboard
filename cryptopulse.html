@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRYPTOPULSE // Real-Time Market Intelligence v3.7.2</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #020f09;
+    --bg2: #041a0e;
+    --bg3: #061f11;
+    --panel: #071a0d;
+    --panel2: #0a2214;
+    --border: #0d3a1c;
+    --border2: #0f4a22;
+    --accent: #00e676;
+    --accent2: #00c853;
+    --accent-dim: #00e67633;
+    --accent-glow: #00e67688;
+    --red: #ff1744;
+    --red-dim: #ff174433;
+    --blue: #2979ff;
+    --yellow: #ffd600;
+    --text: #b2dfdb;
+    --text2: #80cbc4;
+    --text3: #4db6ac;
+    --text-dim: #2e7d6b;
+    --mono: 'Share Tech Mono', monospace;
+    --display: 'Orbitron', sans-serif;
+    --body: 'Rajdhani', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 14px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,230,118,0.015) 2px, rgba(0,230,118,0.015) 4px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ===== SCROLLBAR ===== */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* ===== LAYOUT ===== */
+  .app { position: relative; z-index: 1; padding: 0 0 20px; }
+
+  /* ===== HEADER ===== */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo-area { display: flex; align-items: center; gap: 12px; }
+
+  .logo-icon {
+    width: 40px; height: 40px;
+    background: var(--accent);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+
+  .logo-icon svg { width: 22px; height: 22px; fill: var(--bg); }
+
+  .logo-text h1 {
+    font-family: var(--display);
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: #fff;
+  }
+  .logo-text h1 span { color: var(--accent); }
+  .logo-text p {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+
+  .header-right {
+    display: flex; align-items: center; gap: 24px;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+
+  .live-badge {
+    display: flex; align-items: center; gap: 6px;
+    color: var(--accent);
+  }
+  .live-dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse-dot 1.4s infinite;
+    box-shadow: 0 0 6px var(--accent);
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .utc-time { color: var(--text2); }
+  .network-badge {
+    color: var(--text-dim);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .network-badge span { color: var(--accent); }
+
+  /* ===== METRICS BAR ===== */
+  .metrics-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+
+  .metric-card {
+    background: var(--panel);
+    padding: 14px 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.4;
+  }
+  /* corner brackets */
+  .metric-card::after {
+    content: '';
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 10px; height: 10px;
+    border-top: 1px solid var(--border2);
+    border-right: 1px solid var(--border2);
+  }
+  .corner-bl {
+    position: absolute;
+    bottom: 6px; left: 6px;
+    width: 10px; height: 10px;
+    border-bottom: 1px solid var(--border2);
+    border-left: 1px solid var(--border2);
+  }
+
+  .metric-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .metric-value {
+    font-family: var(--display);
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+    margin-bottom: 6px;
+    text-shadow: 0 0 20px rgba(0,230,118,0.3);
+  }
+
+  .metric-change {
+    font-family: var(--mono);
+    font-size: 10px;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .metric-change.up { color: var(--accent); }
+  .metric-change.down { color: var(--red); }
+
+  /* ===== MAIN GRID ===== */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 16px;
+    padding: 0 16px;
+    margin-bottom: 16px;
+  }
+
+  /* ===== PANEL ===== */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    position: relative;
+  }
+  .panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    opacity: 0.5;
+  }
+
+  /* corner decorations */
+  .panel-corner { position: absolute; width: 12px; height: 12px; }
+  .panel-corner.tl { top: 0; left: 0; border-top: 1px solid var(--accent); border-left: 1px solid var(--accent); }
+  .panel-corner.tr { top: 0; right: 0; border-top: 1px solid var(--accent); border-right: 1px solid var(--accent); }
+  .panel-corner.bl { bottom: 0; left: 0; border-bottom: 1px solid var(--border2); border-left: 1px solid var(--border2); }
+  .panel-corner.br { bottom: 0; right: 0; border-bottom: 1px solid var(--border2); border-right: 1px solid var(--border2); }
+
+  .panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .panel-title {
+    font-family: var(--display);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  .panel-subtitle {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+
+  /* ===== ASSETS TABLE ===== */
+  .assets-header {
+    display: grid;
+    grid-template-columns: 28px 1fr 1fr 80px;
+    padding: 6px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .assets-header span {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .assets-header span:last-child { text-align: right; }
+
+  .asset-row {
+    display: grid;
+    grid-template-columns: 28px 1fr 1fr 80px;
+    align-items: center;
+    padding: 9px 14px;
+    border-bottom: 1px solid rgba(13,58,28,0.5);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .asset-row:hover { background: rgba(0,230,118,0.04); }
+  .asset-row.active { background: rgba(0,230,118,0.07); border-left: 2px solid var(--accent); }
+
+  .rank {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+  }
+
+  .asset-info { display: flex; align-items: center; gap: 8px; }
+
+  .coin-icon {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--display);
+    font-size: 8px;
+    font-weight: 900;
+    color: var(--bg);
+    flex-shrink: 0;
+  }
+
+  .coin-name { font-size: 13px; font-weight: 600; color: #fff; }
+  .coin-symbol { font-family: var(--mono); font-size: 9px; color: var(--text-dim); }
+
+  .asset-price { text-align: right; }
+  .price-val { font-family: var(--mono); font-size: 12px; color: var(--text); }
+  .price-chg { font-family: var(--mono); font-size: 9px; }
+  .price-chg.up { color: var(--accent); }
+  .price-chg.down { color: var(--red); }
+
+  /* ===== CHART PANEL ===== */
+  .chart-panel-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .chart-coin-name {
+    font-family: var(--display);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .chart-price {
+    font-family: var(--display);
+    font-size: 36px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 0 30px rgba(0,230,118,0.4);
+    line-height: 1;
+  }
+
+  .chart-change {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    margin-top: 4px;
+  }
+
+  .timeframe-btns {
+    display: flex; gap: 4px;
+    margin-top: 4px;
+  }
+
+  .tf-btn {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 8px;
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 1px;
+  }
+  .tf-btn:hover, .tf-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+  }
+
+  .chart-area { padding: 8px; }
+  canvas { display: block; }
+
+  /* ===== BOTTOM GRID ===== */
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    padding: 0 16px;
+    margin-bottom: 16px;
+  }
+
+  /* ===== BAR CHART ===== */
+  .bar-chart-container { padding: 12px 16px 8px; }
+
+  .h-bar-row {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 8px;
+  }
+  .h-bar-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    width: 30px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .h-bar-track {
+    flex: 1;
+    height: 14px;
+    background: rgba(0,230,118,0.06);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .h-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    position: relative;
+    transition: width 0.8s cubic-bezier(.4,0,.2,1);
+  }
+  .h-bar-fill::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    width: 2px;
+    background: #fff;
+    opacity: 0.6;
+  }
+  .h-bar-val {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text2);
+    width: 50px;
+    flex-shrink: 0;
+  }
+
+  /* ===== FOOTER ===== */
+  footer {
+    text-align: center;
+    padding: 12px;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+  }
+
+  footer span { color: var(--accent); }
+
+  /* ===== TICKER STRIP ===== */
+  .ticker-strip {
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+    padding: 5px 0;
+    margin-bottom: 16px;
+  }
+  .ticker-inner {
+    display: flex;
+    gap: 40px;
+    animation: ticker 30s linear infinite;
+    white-space: nowrap;
+  }
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .ticker-item {
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--mono);
+    font-size: 10px;
+  }
+  .ticker-name { color: var(--text2); letter-spacing: 1px; }
+  .ticker-price { color: #fff; }
+  .ticker-up { color: var(--accent); }
+  .ticker-down { color: var(--red); }
+  .ticker-sep { color: var(--border2); }
+
+  /* tooltip */
+  .chart-tooltip {
+    position: absolute;
+    background: var(--bg2);
+    border: 1px solid var(--accent);
+    padding: 6px 10px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text);
+    pointer-events: none;
+    z-index: 50;
+    display: none;
+    min-width: 120px;
+  }
+  .chart-tooltip .t-label { color: var(--text-dim); font-size: 9px; margin-bottom: 2px; }
+  .chart-tooltip .t-val { color: var(--accent); font-size: 12px; }
+
+  .chart-wrapper { position: relative; }
+
+  /* blinking cursor */
+  .blink { animation: blink 1s step-end infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .scan-line {
+    position: absolute;
+    left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(0,230,118,0.15), transparent);
+    animation: scan 4s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes scan {
+    0% { top: 0; }
+    100% { top: 100%; }
+  }
+
+  .volume-v-chart { padding: 8px 16px 12px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo-area">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M3.5 18.5L9.5 12.5L13.5 16.5L18.086 11H16V9H21V14H19V11.914L13.5 17.5L9.5 13.5L4.5 18.5H3.5Z"/></svg>
+      </div>
+      <div class="logo-text">
+        <h1><span>CRYPTO</span>PULSE</h1>
+        <p>// REAL-TIME MARKET INTELLIGENCE v3.7.2</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="live-badge">
+        <div class="live-dot"></div>
+        LIVE FEED
+      </div>
+      <div class="utc-time" id="utcTime">00:00:00 UTC</div>
+      <div class="network-badge">NETWORK: <span>MAINNET</span></div>
+    </div>
+  </header>
+
+  <!-- TICKER STRIP -->
+  <div class="ticker-strip">
+    <div class="ticker-inner" id="tickerInner"></div>
+  </div>
+
+  <!-- METRICS BAR -->
+  <div class="metrics-bar">
+    <div class="metric-card">
+      <div class="corner-bl"></div>
+      <div class="metric-label">Total Market Cap</div>
+      <div class="metric-value" id="mktcap">$2.74T</div>
+      <div class="metric-change up" id="mktcap-chg">▲ +2.34% 24H</div>
+    </div>
+    <div class="metric-card">
+      <div class="corner-bl"></div>
+      <div class="metric-label">24H Volume</div>
+      <div class="metric-value" id="vol24h">$98.6B</div>
+      <div class="metric-change up" id="vol24h-chg">▲ +5.71% 24H</div>
+    </div>
+    <div class="metric-card">
+      <div class="corner-bl"></div>
+      <div class="metric-label">BTC Dominance</div>
+      <div class="metric-value" id="btcdom">52.8%</div>
+      <div class="metric-change down" id="btcdom-chg">▼ -0.42% 24H</div>
+    </div>
+    <div class="metric-card">
+      <div class="corner-bl"></div>
+      <div class="metric-label">Fear &amp; Greed</div>
+      <div class="metric-value" id="fng">73 / GREED</div>
+      <div class="metric-change up" id="fng-chg">▲ +6 PTS WEEK</div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- TOP 10 ASSETS -->
+    <div class="panel">
+      <div class="panel-corner tl"></div><div class="panel-corner tr"></div>
+      <div class="panel-corner bl"></div><div class="panel-corner br"></div>
+      <div class="panel-header">
+        <div class="panel-title">Top 10 Assets</div>
+        <div class="panel-subtitle">RANK / PRICE / 24H</div>
+      </div>
+      <div class="assets-header">
+        <span>#</span><span>ASSET</span><span></span><span>PRICE</span>
+      </div>
+      <div id="assetList"></div>
+    </div>
+
+    <!-- CHART PANEL -->
+    <div class="panel">
+      <div class="panel-corner tl"></div><div class="panel-corner tr"></div>
+      <div class="panel-corner bl"></div><div class="panel-corner br"></div>
+      <div class="chart-panel-header">
+        <div>
+          <div class="chart-coin-name" id="chartCoinName">BITCOIN // BTC</div>
+          <div class="chart-price" id="chartPrice">$67,432.44</div>
+          <div class="chart-change" id="chartChange">▲ +2.84% 7D</div>
+        </div>
+        <div>
+          <div class="timeframe-btns">
+            <button class="tf-btn" data-tf="24H">24H</button>
+            <button class="tf-btn active" data-tf="7D">7D</button>
+            <button class="tf-btn" data-tf="1M">1M</button>
+            <button class="tf-btn" data-tf="1Y">1Y</button>
+          </div>
+        </div>
+      </div>
+      <div class="chart-wrapper">
+        <div class="scan-line"></div>
+        <div class="chart-tooltip" id="chartTooltip">
+          <div class="t-label" id="ttLabel">TIME</div>
+          <div class="t-val" id="ttVal">$0.00</div>
+        </div>
+        <div class="chart-area">
+          <canvas id="mainChart" width="760" height="320"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM GRID -->
+  <div class="bottom-grid">
+
+    <!-- MARKET CAP DISTRIBUTION -->
+    <div class="panel">
+      <div class="panel-corner tl"></div><div class="panel-corner tr"></div>
+      <div class="panel-corner bl"></div><div class="panel-corner br"></div>
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Market Cap Distribution</div>
+          <div class="panel-subtitle">// USD BILLION</div>
+        </div>
+      </div>
+      <div class="bar-chart-container" id="mcapBars"></div>
+    </div>
+
+    <!-- 24H TRADING VOLUME -->
+    <div class="panel">
+      <div class="panel-corner tl"></div><div class="panel-corner tr"></div>
+      <div class="panel-corner bl"></div><div class="panel-corner br"></div>
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">24H Trading Volume</div>
+          <div class="panel-subtitle">// USD BILLION</div>
+        </div>
+      </div>
+      <div class="volume-v-chart">
+        <canvas id="volChart" width="560" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    // CRYPTOPULSE TERMINAL &nbsp;<span>•</span>&nbsp; DATA SIMULATED FOR DEMONSTRATION &nbsp;<span>•</span>&nbsp; ENCRYPTED CHANNEL ESTABLISHED //
+  </footer>
+
+</div>
+
+<script>
+// ===== DATA =====
+const COINS = [
+  { id:'BTC', name:'Bitcoin',  sym:'BTC',  price:67420.32, chg:2.84,  mcap:1331, vol:40.2, color:'#f7931a', abbr:'BT' },
+  { id:'ETH', name:'Ethereum', sym:'ETH',  price:3284.15,  chg:1.92,  mcap:349,  vol:21.8, color:'#627eea', abbr:'ET' },
+  { id:'USDT',name:'Tether',   sym:'USDT', price:1.00,     chg:0.01,  mcap:203,  vol:18.1, color:'#26a17b', abbr:'US' },
+  { id:'BNB', name:'BNB',      sym:'BNB',  price:612.43,   chg:3.45,  mcap:167,  vol:3.9,  color:'#f3ba2f', abbr:'BN' },
+  { id:'SOL', name:'Solana',   sym:'SOL',  price:168.92,   chg:5.21,  mcap:133,  vol:7.4,  color:'#9945ff', abbr:'SO' },
+  { id:'USDC',name:'USD Coin', sym:'USDC', price:1.00,     chg:-0.01, mcap:79.4, vol:6.2,  color:'#2775ca', abbr:'US' },
+  { id:'XRP', name:'XRP',      sym:'XRP',  price:0.5234,   chg:-1.23, mcap:50.2, vol:3.1,  color:'#346aa9', abbr:'XR' },
+  { id:'DOGE',name:'Dogecoin', sym:'DOGE', price:0.1543,   chg:7.84,  mcap:11,   vol:1.8,  color:'#c2a633', abbr:'DO' },
+  { id:'TON', name:'Toncoin',  sym:'TON',  price:7.12,     chg:-2.14, mcap:18,   vol:2.1,  color:'#0088cc', abbr:'TO' },
+  { id:'ADA', name:'Cardano',  sym:'ADA',  price:0.4521,   chg:4.12,  mcap:16,   vol:1.4,  color:'#0033ad', abbr:'AD' },
+];
+
+let selectedCoin = COINS[0];
+let currentTF = '7D';
+let animFrame;
+
+// ===== CLOCK =====
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getUTCHours()).padStart(2,'0');
+  const m = String(now.getUTCMinutes()).padStart(2,'0');
+  const s = String(now.getUTCSeconds()).padStart(2,'0');
+  document.getElementById('utcTime').textContent = `${h}:${m}:${s} UTC`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ===== TICKER =====
+function buildTicker() {
+  const el = document.getElementById('tickerInner');
+  const items = [...COINS, ...COINS].map(c => {
+    const up = c.chg >= 0;
+    return `<div class="ticker-item">
+      <span class="ticker-name">${c.sym}</span>
+      <span class="ticker-price">${formatPrice(c.price)}</span>
+      <span class="${up?'ticker-up':'ticker-down'}">${up?'▲':'▼'} ${Math.abs(c.chg).toFixed(2)}%</span>
+      <span class="ticker-sep">|</span>
+    </div>`;
+  }).join('');
+  el.innerHTML = items;
+}
+buildTicker();
+
+// ===== FORMAT =====
+function formatPrice(p) {
+  if (p >= 1000) return '$' + p.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  if (p >= 1) return '$' + p.toFixed(2);
+  return '$' + p.toFixed(4);
+}
+
+// ===== ASSET LIST =====
+function buildAssetList() {
+  const el = document.getElementById('assetList');
+  el.innerHTML = COINS.map((c,i) => {
+    const up = c.chg >= 0;
+    return `<div class="asset-row${c.id===selectedCoin.id?' active':''}" data-id="${c.id}">
+      <div class="rank">#${i+1}</div>
+      <div class="asset-info">
+        <div class="coin-icon" style="background:${c.color}">${c.abbr}</div>
+        <div>
+          <div class="coin-name">${c.name}</div>
+          <div class="coin-symbol">${c.sym}</div>
+        </div>
+      </div>
+      <div></div>
+      <div class="asset-price">
+        <div class="price-val">${formatPrice(c.price)}</div>
+        <div class="price-chg ${up?'up':'down'}">${up?'▲':'▼'} ${up?'+':''}${c.chg.toFixed(2)}%</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  el.querySelectorAll('.asset-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const coin = COINS.find(c => c.id === row.dataset.id);
+      if (coin) selectCoin(coin);
+    });
+  });
+}
+
+function selectCoin(coin) {
+  selectedCoin = coin;
+  buildAssetList();
+  updateChartHeader();
+  drawMainChart();
+}
+
+function updateChartHeader() {
+  document.getElementById('chartCoinName').textContent = `${selectedCoin.name.toUpperCase()} // ${selectedCoin.sym}`;
+  document.getElementById('chartPrice').textContent = formatPrice(selectedCoin.price);
+  const up = selectedCoin.chg >= 0;
+  document.getElementById('chartChange').textContent = `${up?'▲':'▼'} ${up?'+':''}${selectedCoin.chg.toFixed(2)}% ${currentTF}`;
+  document.getElementById('chartChange').style.color = up ? 'var(--accent)' : 'var(--red)';
+}
+
+// ===== PRICE DATA GENERATION =====
+function genPriceData(base, points, volatility) {
+  const data = [];
+  let price = base * (0.85 + Math.random() * 0.3);
+  for (let i = 0; i < points; i++) {
+    price *= (1 + (Math.random() - 0.49) * volatility);
+    price = Math.max(price, base * 0.5);
+    data.push(price);
+  }
+  // nudge end toward base
+  data[data.length - 1] = base;
+  return data;
+}
+
+function genDataForTF(coin, tf) {
+  const pts = { '24H': 48, '7D': 84, '1M': 90, '1Y': 120 }[tf] || 84;
+  const vol = { '24H': 0.008, '7D': 0.015, '1M': 0.025, '1Y': 0.04 }[tf] || 0.015;
+  const seed = coin.id + tf;
+  // deterministic-ish via seeded noise
+  return genPriceDataSeeded(coin.price, pts, vol, seed);
+}
+
+function hashSeed(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+  return h;
+}
+
+function seededRand(seed) {
+  let s = seed;
+  return function() {
+    s = (s * 1664525 + 1013904223) & 0xffffffff;
+    return (s >>> 0) / 0xffffffff;
+  };
+}
+
+function genPriceDataSeeded(base, points, volatility, seedStr) {
+  const rand = seededRand(Math.abs(hashSeed(seedStr)) % 999999 + 1);
+  const data = [];
+  let price = base * (0.82 + rand() * 0.36);
+  for (let i = 0; i < points; i++) {
+    price *= (1 + (rand() - 0.48) * volatility);
+    price = Math.max(price, base * 0.4);
+    data.push(price);
+  }
+  // smooth end
+  const lastN = Math.floor(points * 0.1);
+  for (let i = points - lastN; i < points; i++) {
+    const t = (i - (points - lastN)) / lastN;
+    data[i] = data[i] * (1 - t) + base * t;
+  }
+  return data;
+}
+
+// ===== MAIN CHART =====
+const mainCanvas = document.getElementById('mainChart');
+const mCtx = mainCanvas.getContext('2d');
+let chartData = [];
+let chartData2 = [];
+let chartData3 = [];
+let animProgress = 0;
+let lastAnimTime = 0;
+
+function resizeMainCanvas() {
+  const container = mainCanvas.parentElement.parentElement;
+  const w = container.offsetWidth - 32;
+  const h = 320;
+  mainCanvas.width = w;
+  mainCanvas.height = h;
+}
+
+function drawMainChart() {
+  resizeMainCanvas();
+  chartData = genDataForTF(selectedCoin, currentTF);
+  chartData2 = genDataForTF({...selectedCoin, id: selectedCoin.id+'_ma1'}, currentTF);
+  chartData3 = genDataForTF({...selectedCoin, id: selectedCoin.id+'_ma2'}, currentTF);
+  animProgress = 0;
+  cancelAnimationFrame(animFrame);
+  animateChart();
+}
+
+function animateChart() {
+  animProgress = Math.min(animProgress + 0.025, 1);
+  renderChart(animProgress);
+  if (animProgress < 1) {
+    animFrame = requestAnimationFrame(animateChart);
+  }
+}
+
+function renderChart(progress) {
+  const W = mainCanvas.width, H = mainCanvas.height;
+  mCtx.clearRect(0, 0, W, H);
+
+  const PAD = { t: 20, r: 20, b: 40, l: 68 };
+  const cW = W - PAD.l - PAD.r;
+  const cH = H - PAD.t - PAD.b;
+
+  const allVals = [...chartData, ...chartData2, ...chartData3];
+  const minVal = Math.min(...allVals) * 0.995;
+  const maxVal = Math.max(...allVals) * 1.005;
+
+  const xScale = i => PAD.l + (i / (chartData.length - 1)) * cW;
+  const yScale = v => PAD.t + cH - ((v - minVal) / (maxVal - minVal)) * cH;
+
+  // Grid lines
+  mCtx.strokeStyle = 'rgba(13,58,28,0.8)';
+  mCtx.lineWidth = 1;
+  const gridYCount = 5;
+  for (let i = 0; i <= gridYCount; i++) {
+    const y = PAD.t + (i / gridYCount) * cH;
+    mCtx.beginPath();
+    mCtx.moveTo(PAD.l, y);
+    mCtx.lineTo(W - PAD.r, y);
+    mCtx.stroke();
+    const val = maxVal - (i / gridYCount) * (maxVal - minVal);
+    mCtx.fillStyle = 'rgba(77,182,172,0.6)';
+    mCtx.font = '9px "Share Tech Mono"';
+    mCtx.textAlign = 'right';
+    mCtx.fillText(val >= 1000 ? '$'+Math.round(val/1000)+'K' : formatPrice(val), PAD.l - 6, y + 3);
+  }
+
+  // X-axis labels
+  const tf = currentTF;
+  const labelCount = 5;
+  mCtx.fillStyle = 'rgba(77,182,172,0.5)';
+  mCtx.font = '9px "Share Tech Mono"';
+  mCtx.textAlign = 'center';
+  for (let i = 0; i <= labelCount; i++) {
+    const idx = Math.round((i / labelCount) * (chartData.length - 1));
+    const x = xScale(idx);
+    let label = '';
+    if (tf === '24H') label = (i * 4) + ':00';
+    else if (tf === '7D') label = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][Math.floor(i * 6 / labelCount)] || '';
+    else if (tf === '1M') label = (i * 6) + 'd';
+    else label = ['Jan','Mar','May','Jul','Sep','Nov','Dec'][Math.floor(i * 6 / labelCount)] || '';
+    mCtx.fillText(label, x, H - 8);
+  }
+
+  const visCount = Math.ceil(chartData.length * progress);
+
+  // Draw line series
+  function drawSeries(data, color, lineW, withFill) {
+    if (data.length < 2) return;
+    const pts = Math.min(visCount, data.length);
+    mCtx.beginPath();
+    for (let i = 0; i < pts; i++) {
+      const x = xScale(i);
+      const y = yScale(data[i]);
+      i === 0 ? mCtx.moveTo(x, y) : mCtx.lineTo(x, y);
+    }
+
+    if (withFill) {
+      const lastX = xScale(pts - 1);
+      const lastY = yScale(data[pts - 1]);
+      mCtx.lineTo(lastX, PAD.t + cH);
+      mCtx.lineTo(PAD.l, PAD.t + cH);
+      mCtx.closePath();
+      const grad = mCtx.createLinearGradient(0, PAD.t, 0, PAD.t + cH);
+      grad.addColorStop(0, color.replace(')', ',0.25)').replace('rgb','rgba'));
+      grad.addColorStop(1, color.replace(')', ',0)').replace('rgb','rgba'));
+      mCtx.fillStyle = grad;
+      mCtx.fill();
+    }
+
+    mCtx.beginPath();
+    for (let i = 0; i < pts; i++) {
+      const x = xScale(i);
+      const y = yScale(data[i]);
+      i === 0 ? mCtx.moveTo(x, y) : mCtx.lineTo(x, y);
+    }
+    mCtx.strokeStyle = color;
+    mCtx.lineWidth = lineW;
+    mCtx.lineJoin = 'round';
+    mCtx.stroke();
+  }
+
+  drawSeries(chartData3, '#2979ff', 1.5, false);
+  drawSeries(chartData2, '#ff1744', 1.5, false);
+  drawSeries(chartData, '#00e676', 2, true);
+
+  // Glow on main line
+  mCtx.shadowColor = '#00e676';
+  mCtx.shadowBlur = 6;
+  drawSeries(chartData, '#00e676', 1.5, false);
+  mCtx.shadowBlur = 0;
+}
+
+// Chart tooltip
+mainCanvas.addEventListener('mousemove', function(e) {
+  const rect = mainCanvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const PAD = { l: 68, r: 20, t: 20, b: 40 };
+  const cW = mainCanvas.width - PAD.l - PAD.r;
+  const idx = Math.round((mx - PAD.l) / cW * (chartData.length - 1));
+  if (idx < 0 || idx >= chartData.length) return;
+
+  const tt = document.getElementById('chartTooltip');
+  const tf = currentTF;
+  let label = '';
+  if (tf === '24H') label = Math.floor(idx / 2) + ':' + (idx % 2 === 0 ? '00' : '30');
+  else if (tf === '7D') label = 'Day ' + (Math.floor(idx / 12) + 1);
+  else label = 'Point ' + idx;
+
+  document.getElementById('ttLabel').textContent = label;
+  document.getElementById('ttVal').textContent = formatPrice(chartData[idx]);
+  tt.style.display = 'block';
+  const left = Math.min(mx + 10, mainCanvas.width - 140);
+  tt.style.left = left + 'px';
+  tt.style.top = '10px';
+});
+mainCanvas.addEventListener('mouseleave', () => {
+  document.getElementById('chartTooltip').style.display = 'none';
+});
+
+// Timeframe buttons
+document.querySelectorAll('.tf-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentTF = btn.dataset.tf;
+    updateChartHeader();
+    drawMainChart();
+  });
+});
+
+// ===== MARKET CAP BARS =====
+function buildMcapBars() {
+  const el = document.getElementById('mcapBars');
+  const maxMcap = Math.max(...COINS.slice(0,8).map(c=>c.mcap));
+  el.innerHTML = COINS.slice(0,8).map(c => {
+    const pct = (c.mcap / maxMcap * 100).toFixed(1);
+    return `<div class="h-bar-row">
+      <div class="h-bar-label">${c.sym}</div>
+      <div class="h-bar-track">
+        <div class="h-bar-fill" style="width:0%" data-w="${pct}%"></div>
+      </div>
+      <div class="h-bar-val">$${c.mcap}B</div>
+    </div>`;
+  }).join('');
+
+  // animate bars in
+  setTimeout(() => {
+    el.querySelectorAll('.h-bar-fill').forEach(bar => {
+      bar.style.transition = 'width 1s cubic-bezier(.4,0,.2,1)';
+      bar.style.width = bar.dataset.w;
+    });
+  }, 100);
+}
+
+// ===== VOLUME BAR CHART =====
+function drawVolChart() {
+  const canvas = document.getElementById('volChart');
+  const container = canvas.parentElement.parentElement;
+  canvas.width = container.offsetWidth - 32;
+  canvas.height = 200;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  const PAD = { t: 16, r: 16, b: 36, l: 52 };
+  const cW = W - PAD.l - PAD.r;
+  const cH = H - PAD.t - PAD.b;
+
+  const volData = COINS.slice(0,8);
+  const maxVol = Math.max(...volData.map(c=>c.vol));
+
+  const barW = cW / volData.length * 0.55;
+  const gap = cW / volData.length;
+
+  // Grid
+  ctx.strokeStyle = 'rgba(13,58,28,0.8)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = PAD.t + (i / 4) * cH;
+    ctx.beginPath(); ctx.moveTo(PAD.l, y); ctx.lineTo(W - PAD.r, y); ctx.stroke();
+    const v = maxVol * (1 - i / 4);
+    ctx.fillStyle = 'rgba(77,182,172,0.5)';
+    ctx.font = '9px "Share Tech Mono"';
+    ctx.textAlign = 'right';
+    ctx.fillText('$' + v.toFixed(0) + 'B', PAD.l - 4, y + 3);
+  }
+
+  // Bars with animation
+  let prog = 0;
+  function animBars() {
+    prog = Math.min(prog + 0.04, 1);
+    ctx.clearRect(PAD.l, 0, cW + PAD.r, H);
+
+    // redraw grid
+    ctx.strokeStyle = 'rgba(13,58,28,0.8)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+      const y = PAD.t + (i / 4) * cH;
+      ctx.beginPath(); ctx.moveTo(PAD.l, y); ctx.lineTo(W - PAD.r, y); ctx.stroke();
+    }
+
+    volData.forEach((c, i) => {
+      const barH = (c.vol / maxVol) * cH * prog;
+      const x = PAD.l + i * gap + (gap - barW) / 2;
+      const y = PAD.t + cH - barH;
+
+      // gradient fill
+      const grad = ctx.createLinearGradient(0, y, 0, PAD.t + cH);
+      grad.addColorStop(0, '#00e676');
+      grad.addColorStop(1, 'rgba(0,200,83,0.4)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(x, y, barW, barH);
+
+      // border
+      ctx.strokeStyle = '#00e67666';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x, y, barW, barH);
+
+      // label
+      ctx.fillStyle = 'rgba(77,182,172,0.6)';
+      ctx.font = '9px "Share Tech Mono"';
+      ctx.textAlign = 'center';
+      ctx.fillText(c.sym, x + barW / 2, H - 8);
+    });
+
+    if (prog < 1) requestAnimationFrame(animBars);
+  }
+  animBars();
+}
+
+// ===== LIVE PRICE UPDATES =====
+function flickerPrices() {
+  COINS.forEach(coin => {
+    const drift = (Math.random() - 0.499) * 0.002;
+    coin.price = Math.max(coin.price * (1 + drift), 0.001);
+  });
+  buildAssetList();
+  updateChartHeader();
+  buildTicker();
+}
+setInterval(flickerPrices, 3000);
+
+// ===== INIT =====
+function init() {
+  buildAssetList();
+  updateChartHeader();
+  buildMcapBars();
+  drawMainChart();
+  drawVolChart();
+}
+
+window.addEventListener('resize', () => {
+  resizeMainCanvas();
+  drawMainChart();
+  drawVolChart();
+});
+
+init();
+</script>
+</body>
+</html>
